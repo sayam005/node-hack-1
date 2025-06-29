@@ -38,7 +38,7 @@ def login():
         else:
             flash('Invalid email or password')
     
-    return render_template('auth/login.html')
+    return render_template('login.html')
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -53,11 +53,11 @@ def register():
         # Check if user already exists
         if User.query.filter_by(email=email).first():
             flash('Email already registered')
-            return render_template('auth/register.html')
+            return render_template('register.html')
         
         if User.query.filter_by(username=username).first():
             flash('Username already taken')
-            return render_template('auth/register.html')
+            return render_template('register.html')
         
         # Create new user
         user = User(username=username, email=email)
@@ -75,7 +75,7 @@ def register():
         flash('Welcome! Meet Blobby the Moody Blob! 🐾 Start building your bond!')
         return redirect(url_for('auth.login'))
     
-    return render_template('auth/register.html')
+    return render_template('register.html')
 
 @auth_bp.route('/logout')
 @login_required
