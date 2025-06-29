@@ -1,8 +1,4 @@
-{% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
-
-{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,9 +84,9 @@
     }
 
     .pet-image {
-      width: 200px;
-      height: 200px;
-      margin-bottom: 30px;
+      width: 300px;
+      height: 300px;
+      margin-bottom: -px;
       image-rendering: pixelated;
       transition: transform 0.3s ease;
       background: transparent;
@@ -104,7 +100,7 @@
       
 }
     .mood-buttons button {
-      background:#ed83ec;
+      background:#dea1d4;
       border: none;
       color: #fff;
       padding: 10px 20px;
@@ -119,26 +115,151 @@
     .mood-buttons button:hover {
       background: #82cbf8;
     }
-    .timebar {
+    .timebar-container {
       position: fixed;
-      top: 10px;
+      top: 20px;
       left: 20px;
-      width: 250px;
-      height: auto;
+      width: 300px;
+      height: 250px;
       z-index: 1000;
+      transform: scaleY(1.2);
+    }
+
+    .timebar {
+      width: 100%;
+      height: 100%;
       image-rendering: pixelated;
       background: transparent;
       mix-blend-mode: multiply;
+      transform: scaleY(1.2);
+    }
+
+    .blink-animation {
+      animation: blink 3s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 93% {
+        content: url('/static/timebarfinal.png');
+      }
+      94%, 96% {
+        content: url('/static/timebarfinal-blink.png');
+      }
+      98%, 100% {
+        content: url('/static/timebarfinal.png');
+      }
+    }
+
+    .hamburger-menu {
+      position: fixed;
+      top: 30px;
+      right: 1%;
+      cursor: pointer;
+      z-index: 1001;
+      padding: 10px;
+      
+      
+    }
+
+    .bar1, .bar2, .bar3 {
+      width: 50px;
+      height: 5px;
+      background-color: #a3d6f1;
+      margin: 6px 0;
+      transition: 0.4s;
+      border-radius: 3px;
+    }
+
+    .change .bar1 {
+      transform: translate(0, 11px) rotate(-45deg);
+    }
+
+    .change .bar2 {
+      opacity: 0;
+    }
+
+    .change .bar3 {
+      transform: translate(0, -11px) rotate(45deg);
+    }
+
+    .sidebar {
+      position: fixed;
+      right: -250px;
+      top: 0;
+      width: 250px;
+      height: 100%;
+      background-color: #dea1d4;
+      transition: 0.3s;
+      z-index: 1000;
+      padding-top: 60px;
+    }
+
+    .sidebar.active {
+      right: 0;
+    }
+
+    .sidebar ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .sidebar ul li {
+      padding: 25px 40px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .sidebar ul li:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar ul li ul {
+      padding-left: 20px;
+      display: none; /* Hidden by default */
+    }
+
+    .sidebar ul li:hover ul {
+      display: block; /* Show on hover */
+    }
+
+    .sidebar ul li ul li {
+      padding: 10px 0;
+      font-size: 14px;
+    }
+
+    .sidebar ul li ul li:hover {
+      background-color: rgba(255, 255, 255, 0.3);
     }
     .background{
         height: fit-content;
-    }
+    }    
   </style>
 </head>
-<body> 
+<body>
+   
 
-    <audio autoplay >
+  <div class="hamburger-menu">
+    <div class="bar1"></div>
+    <div class="bar2"></div>
+    <div class="bar3"></div>
+  </div>
 
+  <div class="sidebar">
+    <ul>
+      <li>Profile
+        <ul>
+          <li>Edit</li>
+          <li>Stats</li>
+        </ul>
+      <li>about us </li>
+      
+    </ul>
+  </div>
+
+ <audio  > 
+     
    <source src="/static/bg music.mp3" type="audio/mp3">
 
     </audio>
@@ -149,11 +270,11 @@
   </div>
 
   <div class="home-container">
+
+
     <h1></h1>
 
-    
-
-    <img src="/static/normal.jpg" id="pet-image" class="pet-image" alt="Your Pet">
+    <img src="/static/normal.png" id="pet-image" class="pet-image" alt="Your Pet">
 
     <div class="mood-buttons">
       <button onclick="changeMood('happy')">😊 Happy</button>
@@ -164,11 +285,33 @@
       <button onclick="changeMood('dead')">😵 dead</button>
     </div>
   </div>
-<div class="timebar">
-    <img src="/static/timebar.jpg" id="timebar" class="timebar" >
+
+<div class="timebar-container">
+
+    <img src="/static/timebarfinal.png" id="timebar" class="timebar blink-animation">
 
 </div>
+
+
+
   <script>
+    // Hamburger menu functionality
+    const hamburger = document.querySelector('.hamburger-menu');
+    const sidebar = document.querySelector('.sidebar');
+
+    hamburger.addEventListener('click', function() {
+      this.classList.toggle('change');
+      sidebar.classList.toggle('active');
+    });
+
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!hamburger.contains(event.target) && !sidebar.contains(event.target)) {
+        hamburger.classList.remove('change');
+        sidebar.classList.remove('active');
+      }
+    });
+
     function changeMood(mood) {
       // Update the pet image to match the chosen mood
       let petImage = document.getElementById('pet-image');
@@ -184,4 +327,4 @@
 
 </body>
 </html>
-{% endblock %}
+
