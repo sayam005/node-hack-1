@@ -3,6 +3,160 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1>Dashboard</h1>
-<p>Welcome, {{ user.username }}!</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EmotiPet Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: 'Press Start 2P', cursive;
+      background: #AEEFFF;
+    }
+
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: -10;
+      overflow: hidden;
+    }
+
+    .bg-layer {
+      position: absolute;
+      width: 100%;
+      height: auto;
+      image-rendering: pixelated;
+    }
+
+    .sky {
+      top: 0;
+      left: 0;
+    }
+
+    .clouds {
+      top: 20px;
+      left: 0;
+      animation: moveClouds 60s linear infinite;
+      opacity: 0.8;
+    }
+
+    .hills {
+      bottom: 0;
+      left: 0;
+    }
+
+    .butterflies {
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      animation: floatButterflies 4s ease-in-out infinite;
+    }
+
+    @keyframes moveClouds {
+      0% { left: 0; }
+      100% { left: -100%; }
+    }
+
+    @keyframes floatButterflies {
+      0%, 100% { transform: translate(-50%, 0); }
+      50% { transform: translate(-50%, -20px); }
+    }
+
+    .home-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.85);
+      border: 4px solid #7EE281;
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      width: 400px;
+    }
+
+    .home-container h1 {
+      color: #4AB351;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .pet-image {
+      width: 150px;
+      height: auto;
+      margin-bottom: 20px;
+      image-rendering: pixelated;
+      transition: transform 0.3s ease;
+    }
+
+    .mood-buttons button {
+      background: #7EE281;
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      font-family: inherit;
+      cursor: pointer;
+      font-size: 12px;
+      border-radius: 4px;
+      margin: 5px;
+      transition: background 0.3s;
+    }
+
+    .mood-buttons button:hover {
+      background: #4AB351;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background">
+    <img src="static/images/sky.png" class="bg-layer sky" alt="sky">
+    <img src="static/images/clouds.png" class="bg-layer clouds" alt="clouds">
+    <img src="static/images/hills.png" class="bg-layer hills" alt="hills">
+    <img src="static/images/butterflies.gif" class="bg-layer butterflies" alt="butterflies">
+  </div>
+
+  <div class="home-container">
+    <h1>Welcome, Bosh!</h1>
+
+    <img src="/static/normal.jpg" id="pet-image" class="pet-image" alt="Your Pet">
+
+    <div class="mood-buttons">
+      <button onclick="changeMood('happy')">😊 Happy</button>
+      <button onclick="changeMood('sad')">😢 Sad</button>
+      <button onclick="changeMood('angry')">😠 Angry</button>
+    </div>
+  </div>
+
+  <script>
+    function changeMood(mood) {
+      // Update the pet image to match the chosen mood
+      let petImage = document.getElementById('pet-image');
+      petImage.src = 'static/images/' + mood + '_pet.png';
+
+      // Optional: add a small bounce effect for feedback
+      petImage.style.transform = 'scale(1.2)';
+      setTimeout(() => {
+        petImage.style.transform = 'scale(1)';
+      }, 200);
+    }
+  </script>
+
+</body>
+</html>
 {% endblock %}
