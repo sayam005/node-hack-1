@@ -11,6 +11,7 @@
   <title>EmotiPet Home</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
+    
     * {
       margin: 0;
       padding: 0;
@@ -25,15 +26,7 @@
       background: #AEEFFF;
     }
 
-    .background {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      z-index: -10;
-      overflow: hidden;
-    }
+    
 
     .bg-layer {
       position: absolute;
@@ -82,8 +75,6 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(255, 255, 255, 0.85);
-      border: 4px solid #7EE281;
       border-radius: 8px;
       padding: 40px;
       text-align: center;
@@ -91,21 +82,29 @@
     }
 
     .home-container h1 {
-      color: #4AB351;
-      margin-bottom: 20px;
+      color: #ed83ec;
+      margin-bottom: 200px;
       font-size: 14px;
     }
 
     .pet-image {
-      width: 150px;
-      height: auto;
-      margin-bottom: 20px;
+      width: 200px;
+      height: 200px;
+      margin-bottom: 30px;
       image-rendering: pixelated;
       transition: transform 0.3s ease;
+      background: transparent;
+      mix-blend-mode: multiply;
+     
+      
     }
-
+.pet-image{
+    background: transparent;
+      mix-blend-mode: multiply;
+      
+}
     .mood-buttons button {
-      background: #7EE281;
+      background:#ed83ec;
       border: none;
       color: #fff;
       padding: 10px 20px;
@@ -118,21 +117,41 @@
     }
 
     .mood-buttons button:hover {
-      background: #4AB351;
+      background: #82cbf8;
+    }
+    .timebar {
+      position: fixed;
+      top: 10px;
+      left: 20px;
+      width: 250px;
+      height: auto;
+      z-index: 1000;
+      image-rendering: pixelated;
+      background: transparent;
+      mix-blend-mode: multiply;
+    }
+    .background{
+        height: fit-content;
     }
   </style>
 </head>
-<body>
+<body> 
+
+    <audio autoplay >
+
+   <source src="/static/bg music.mp3" type="audio/mp3">
+
+    </audio>
 
   <div class="background">
-    <img src="static/images/sky.png" class="bg-layer sky" alt="sky">
-    <img src="static/images/clouds.png" class="bg-layer clouds" alt="clouds">
-    <img src="static/images/hills.png" class="bg-layer hills" alt="hills">
-    <img src="static/images/butterflies.gif" class="bg-layer butterflies" alt="butterflies">
+    <img src="/static/background.jpg" class="bg-layer background" alt="background">
+    
   </div>
 
   <div class="home-container">
-    <h1>Welcome, Bosh!</h1>
+    <h1></h1>
+
+    
 
     <img src="/static/normal.jpg" id="pet-image" class="pet-image" alt="Your Pet">
 
@@ -140,9 +159,15 @@
       <button onclick="changeMood('happy')">😊 Happy</button>
       <button onclick="changeMood('sad')">😢 Sad</button>
       <button onclick="changeMood('angry')">😠 Angry</button>
+      <button onclick="changeMood('playing')">😝 Playing</button>
+      <button onclick="changeMood('sick')">🤒 sick</button>
+      <button onclick="changeMood('dead')">😵 dead</button>
     </div>
   </div>
+<div class="timebar">
+    <img src="/static/timebar.jpg" id="timebar" class="timebar" >
 
+</div>
   <script>
     function changeMood(mood) {
       // Update the pet image to match the chosen mood
