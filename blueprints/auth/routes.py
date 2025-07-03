@@ -42,7 +42,7 @@ def register():
         else:
             user = User(username=username, email=email)
             user.set_password(password)
-            new_pet = Pet(owner=user, last_login_time=datetime.utcnow())
+            new_pet = Pet(user=user, last_login_time=datetime.utcnow())
             db.session.add(user)
             db.session.add(new_pet)
             db.session.commit()

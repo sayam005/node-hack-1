@@ -7,20 +7,15 @@ from blueprints.main import main_bp
 from blueprints.pets import pets_bp
 from blueprints.profile import profile_bp
 import os
+from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
 
-# Load environment variables from .env file for local development
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    # python-dotenv is not installed, skip loading .env
-    pass
+load_dotenv()
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     
-    # Initialize extensions
     db.init_app(app)
     
     # Setup Flask-Login
