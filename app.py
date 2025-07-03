@@ -6,6 +6,15 @@ from blueprints.auth import auth_bp
 from blueprints.main import main_bp
 from blueprints.pets import pets_bp
 from blueprints.profile import profile_bp
+import os
+
+# Load environment variables from .env file for local development
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # python-dotenv is not installed, skip loading .env
+    pass
 
 def create_app():
     app = Flask(__name__)
@@ -36,6 +45,8 @@ def create_app():
     
     return app
 
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
-    app.run(debug=True)
+    # The host='0.0.0.0' is important for Render to correctly map the port.
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
