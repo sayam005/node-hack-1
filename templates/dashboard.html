@@ -21,8 +21,6 @@
       background: #AEEFFF;
     }
 
-    
-
     .bg-layer {
       position: absolute;
       width: 100%;
@@ -85,19 +83,13 @@
     .pet-image {
       width: 300px;
       height: 300px;
-      margin-bottom: -px;
+      margin-bottom: 0;
       image-rendering: pixelated;
       transition: transform 0.3s ease;
       background: transparent;
       mix-blend-mode: multiply;
-     
-      
     }
-.pet-image{
-    background: transparent;
-      mix-blend-mode: multiply;
-      
-}
+
     .mood-buttons button {
       background:#dea1d4;
       border: none;
@@ -117,11 +109,23 @@
     .timebar-container {
       position: fixed;
       top: 20px;
-      left: px;
+      left: 20px;
       width: 300px;
       height: 250px;
       z-index: 1000;
       transform: scaleY(1.2);
+      position: relative;
+      text-align: center;
+    }
+
+    #timer-display {
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 28px;
+      text-shadow: 2px 2px 4px #000;
     }
 
     .timebar {
@@ -156,8 +160,6 @@
       cursor: pointer;
       z-index: 1001;
       padding: 10px;
-      
-      
     }
 
     .bar1, .bar2, .bar3 {
@@ -191,7 +193,6 @@
       transition: 0.3s;
       z-index: 1000;
       padding-top: 60px;
-      
     }
 
     .sidebar.active {
@@ -217,11 +218,11 @@
 
     .sidebar ul li ul {
       padding-left: 20px;
-      display: none; /* Hidden by default */
+      display: none;
     }
 
     .sidebar ul li:hover ul {
-      display: block; /* Show on hover */
+      display: block;
     }
 
     .sidebar ul li ul li {
@@ -234,7 +235,6 @@
     }
     .background{
         height: fit-content;
-
     }   
     .streakboardfinal{
         right: 0;
@@ -263,7 +263,7 @@
 
  <audio autoplay loop> 
    <source src="/static/bg music.mp3" type="audio/mp3">
- </audio >
+ </audio>
 
   <div class="background">
     <img src="/static/background.jpg" class="bg-layer background" alt="background">
@@ -280,7 +280,7 @@
       {% endif %}
     {% endwith %}
 
-    <h1>{{ pet.message }}</h1>
+    <h1 id="pet-message">{{ pet.message }}</h1>
 
     <img src="/static/{{ pet.current_mood }}.png" id="pet-image" class="pet-image" alt="Your Pet">
 
@@ -296,6 +296,7 @@
 
 <div class="timebar-container">
     <img src="/static/timebarfinal.png" id="timebar" class="timebar blink-animation">
+    <div id="timer-display">01:00</div>
 </div>
 
 <div>
@@ -319,9 +320,17 @@
       }
     });
 
-    // --- Real-time Mood Recovery ---
+    // --- Combined Timer and Mood Recovery Logic ---
+    const timerDisplay = document.getElementById('timer-display');
     const petImage = document.getElementById('pet-image');
+    const petMessage = document.getElementById('pet-message');
     
+    // Assumes timer_info is passed from Flask. Defaults to 0 if not available.
+    const onlineMinutes = parseInt('{{ timer_info.online_minutes | default(0) }}', 10);
+    const secondsOnline = onlineMinutes * 60;
+    const secondsIntoCurrentMinute = secondsOnline % 60;
+    let timeRemaining = 60 - Math.floor(secondsIntoCurrentMinute);
+
     function recoverMood() {
       const currentSrc = petImage.src;
       // Don't recover if pet is already at max mood ('playing') or min mood ('dead')
@@ -337,13 +346,30 @@
       .then(data => {
         if (data.success) {
           petImage.src = data.image_path;
+          petMessage.textContent = data.message;
         }
       })
       .catch(error => console.error('Error recovering mood:', error));
     }
 
-    // Run the recoverMood function every 60 seconds
-    setInterval(recoverMood, 60000);
+    function updateTimer() {
+      const seconds = timeRemaining % 60;
+      // Display the countdown for the current 1-minute interval
+      timerDisplay.textContent = `00:${seconds.toString().padStart(2, '0')}`;
+      
+      if (timeRemaining > 0) {
+        timeRemaining--;
+      } else {
+        // Timer reached zero, recover mood and reset timer
+        recoverMood();
+        timeRemaining = 59; // Reset for the next minute
+      }
+    }
+
+    // Start the unified timer
+    setInterval(updateTimer, 1000);
+    // Initial call to display timer immediately
+    updateTimer();
   </script>
 
 </body>
