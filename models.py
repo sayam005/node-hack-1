@@ -96,6 +96,25 @@ class Pet(db.Model):
             pass # Mood not in hierarchy, do nothing
         return self.current_mood
 
+    def get_timer_info(self):
+        """Calculates various time-based stats for the pet."""
+        now = datetime.utcnow()
+        
+        offline_minutes = 0
+        if self.last_logout_time and self.last_login_time and self.last_login_time > self.last_logout_time:
+            offline_minutes = (self.last_login_time - self.last_logout_time).total_seconds() / 60
+            
+        online_minutes = 0
+        if self.last_login_time:
+            online_minutes = (now - self.last_login_time).total_seconds() / 60
+            
+        return {
+            'offline_minutes': offline_minutes,
+            'online_minutes': online_minutes,
+            'total_deterioration': offline_minutes,
+            'recovery_progress': online_minutes
+        }
+
     @property
     def message(self):
         """Dynamic message based on pet's mood."""
