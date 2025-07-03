@@ -1,4 +1,4 @@
-from flask import redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from models import db
 from . import pets_bp
@@ -52,8 +52,14 @@ def set_mood(mood):
     
     # Save changes
     db.session.commit()
-    
-    # Show Blobby's response
-    flash(response)
-    
+    flash(f"You've set Blobby's mood to {mood}!")
     return redirect(url_for('main.dashboard'))
+
+@pets_bp.route('/recover', methods=['POST'])
+@login_required
+def recover_mood():
+    """Endpoint for JS to call to improve mood by one level."""
+    if current_user.pet:
+        new_mood = current_user.pet.recover_mood()
+        return jsonify({'success': True, 'new_mood': new_mood, 'image_path': f'/static/{new_mood}.png'})
+    return jsonify({'success': False, 'error': 'Pet not found'}), 404

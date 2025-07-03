@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -243,100 +242,108 @@
         position: absolute;
         margin-right: 15vw;
     }
+    .flash-messages { list-style: none; padding: 0; text-align: center; position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 100; }
+    .flash-messages li { font-size: 10px; padding: 10px 20px; background: #fff; color: #ed83ec; border-radius: 5px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
   </style>
 </head>
 <body>
+  <div class="sidebar">
+    <ul>
+      <li><a href="{{ url_for('profile.view_profile') }}" style="text-decoration: none; color: white;">Profile</a></li>
+      <li><a href="{{ url_for('main.index') }}" style="text-decoration: none; color: white;">About Us</a></li>
+    </ul>
+  </div>
+  <div class="main-content">
    
-
   <div class="hamburger-menu">
     <div class="bar1"></div>
     <div class="bar2"></div>
     <div class="bar3"></div>
   </div>
 
-  <div class="sidebar">
-    <ul>
-      <li>Profile
-        <ul>
-          <li>Edit</li>
-          <li>Stats</li>
-        </ul>
-      <li>about us </li>
-      
-    </ul>
-    
-  </div>
-
- <audio autoplay > 
-     
+ <audio autoplay loop> 
    <source src="/static/bg music.mp3" type="audio/mp3">
-
-    </audio >
+ </audio >
 
   <div class="background">
     <img src="/static/background.jpg" class="bg-layer background" alt="background">
-    
   </div>
 
   <div class="home-container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flash-messages">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
 
+    <h1>{{ pet.message }}</h1>
 
-    <h1></h1>
-
-    <img src="/static/normal.png" id="pet-image" class="pet-image" alt="Your Pet">
+    <img src="/static/{{ pet.current_mood }}.png" id="pet-image" class="pet-image" alt="Your Pet">
 
     <div class="mood-buttons">
-      <button onclick="changeMood('happy')">😊 Happy</button>
-        <button onclick="changeMood('sad')">😢 Sad</button>
-          <button onclick="changeMood('angry')">😠 Angry</button>
-             <button onclick="changeMood('playing')">😝 Playing</button>
-          <button onclick="changeMood('sick')">🤒 sick</button>
-      <button onclick="changeMood('dead')">😵 dead</button>
+      <form action="{{ url_for('pets.set_mood', mood='playing') }}" method="POST" style="display: inline;"><button type="submit">😝 Playing</button></form>
+      <form action="{{ url_for('pets.set_mood', mood='happy') }}" method="POST" style="display: inline;"><button type="submit">😊 Happy</button></form>
+      <form action="{{ url_for('pets.set_mood', mood='normal') }}" method="POST" style="display: inline;"><button type="submit">😐 Normal</button></form>
+      <form action="{{ url_for('pets.set_mood', mood='sad') }}" method="POST" style="display: inline;"><button type="submit">😢 Sad</button></form>
+      <form action="{{ url_for('pets.set_mood', mood='sick') }}" method="POST" style="display: inline;"><button type="submit">🤒 Sick</button></form>
+      <form action="{{ url_for('pets.set_mood', mood='dead') }}" method="POST" style="display: inline;"><button type="submit">😵 Dead</button></form>
     </div>
   </div>
 
 <div class="timebar-container">
-
     <img src="/static/timebarfinal.png" id="timebar" class="timebar blink-animation">
-    
-
-
 </div>
 
 <div>
-        <img src="/static/streakboardfinal.png" width="200" height="200" class="streakboardfinal">
-      
-    </div>
+    <img src="/static/streakboardfinal.png" width="200" height="200" class="streakboardfinal">
+</div>
 
   <script>
     // Hamburger menu functionality
     const hamburger = document.querySelector('.hamburger-menu');
-    const sidebar = document.querySelector('.sidebar');
+    const sidebar = document.querySelector('body > .sidebar');
 
     hamburger.addEventListener('click', function() {
       this.classList.toggle('change');
       sidebar.classList.toggle('active');
     });
 
-    // Close sidebar when clicking outside
     document.addEventListener('click', function(event) {
-      if (!hamburger.contains(event.target) && !sidebar.contains(event.target)) {
+      if (sidebar.classList.contains('active') && !hamburger.contains(event.target) && !sidebar.contains(event.target)) {
         hamburger.classList.remove('change');
         sidebar.classList.remove('active');
       }
     });
 
-    function changeMood(mood) {
-      // Update the pet image to match the chosen mood
-      let petImage = document.getElementById('pet-image');
-      petImage.src = 'static/images/' + mood + '_pet.png';
+    // --- Real-time Mood Recovery ---
+    const petImage = document.getElementById('pet-image');
+    
+    function recoverMood() {
+      const currentSrc = petImage.src;
+      // Don't recover if pet is already at max mood ('playing') or min mood ('dead')
+      if (currentSrc.includes('playing.png') || currentSrc.includes('dead.png')) {
+        return;
+      }
 
-      // Optional: add a small bounce effect for feedback
-      petImage.style.transform = 'scale(1.2)';
-      setTimeout(() => {
-        petImage.style.transform = 'scale(1)';
-      }, 200);
+      fetch("{{ url_for('pets.recover_mood') }}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          petImage.src = data.image_path;
+        }
+      })
+      .catch(error => console.error('Error recovering mood:', error));
     }
+
+    // Run the recoverMood function every 60 seconds
+    setInterval(recoverMood, 60000);
   </script>
 
 </body>
