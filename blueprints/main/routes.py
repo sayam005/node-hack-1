@@ -4,8 +4,16 @@ from . import main_bp
 
 @main_bp.route('/')
 def index():
-    # Simple landing page - no stats needed
-    return render_template('index.html')
+    # If the user is already logged in, take them to the dashboard.
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dashboard'))
+    # Otherwise, the main page should be the login page.
+    return redirect(url_for('auth.login'))
+
+@main_bp.route('/about')
+def about():
+    # This creates a dedicated page for "About Us".
+    return render_template('about.html')
 
 @main_bp.route('/dashboard')
 @login_required

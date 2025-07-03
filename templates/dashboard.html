@@ -65,7 +65,7 @@
 
     .home-container {
       position: absolute;
-      top: 50%;
+      top: 50%; /* Reverted to vertically center the whole container */
       left: 50%;
       transform: translate(-50%, -50%);
       border-radius: 8px;
@@ -76,13 +76,15 @@
 
     .home-container h1 {
       color: #ed83ec;
-      margin-bottom: 200px;
+      margin-top: 20px;
+      margin-bottom: 20px;
       font-size: 14px;
     }
 
     .pet-image {
       width: 300px;
       height: 300px;
+      margin-top: 70px; /* Pushes ONLY the pet down, below the flash message */
       margin-bottom: 0;
       image-rendering: pixelated;
       transition: transform 0.3s ease;
@@ -120,7 +122,7 @@
 
     #timer-display {
       position: absolute;
-      top: 55%;
+      top: 49%; /* Adjusted for better vertical centering in bar */
       left: 50%;
       transform: translate(-50%, -50%);
       color: white;
@@ -212,45 +214,83 @@
       transition: 0.2s;
     }
 
+    .sidebar ul li a {
+      text-decoration: none;
+      color: white;
+    }
+
     .sidebar ul li:hover {
       background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .sidebar ul li ul {
-      padding-left: 20px;
-      display: none;
-    }
-
-    .sidebar ul li:hover ul {
-      display: block;
-    }
-
-    .sidebar ul li ul li {
-      padding: 10px 0;
-      font-size: 14px;
-    }
-
-    .sidebar ul li ul li:hover {
-      background-color: rgba(255, 255, 255, 0.3);
     }
     .background{
         height: fit-content;
     }   
     .streakboardfinal{
-        right: 0;
-        top: 0;
         position: absolute;
-        margin-right: 15vw;
+        top: 20px;
+        right: 15vw;
+    }
+    .streak-text {
+        position: absolute;
+        top: 220px; /* Positioned just below the 200px high board */
+        right: 14vw;
+        width: 200px; /* Match the board's width */
+        text-align: center;
+        font-weight: bold;
+        color: #FF4500; /* Fiery orange */
+        text-shadow: 1px 1px 2px black;
+        font-size: 24px;
     }
     .flash-messages { list-style: none; padding: 0; text-align: center; position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 100; }
-    .flash-messages li { font-size: 10px; padding: 10px 20px; background: #fff; color: #ed83ec; border-radius: 5px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .flash-messages li {
+        position: relative;
+        background: #fff;
+        border: 4px solid #000;
+        border-radius: 25px;
+        padding: 15px 25px;
+        margin-bottom: 30px; /* Increased for tail */
+        font-size: 14px;
+        color: #000;
+        box-shadow: none;
+    }
+    .flash-messages li:after {
+        content: '';
+        position: absolute;
+        bottom: -24px; /* Position tail at the bottom */
+        left: 50%;
+        transform: translateX(-50%);
+        border: 12px solid transparent;
+        border-top-color: #000; /* Creates the outer triangle */
+    }
+    .flash-messages li:before {
+        content: '';
+        position: absolute;
+        bottom: -16px; /* Position inside the other triangle */
+        left: 50%;
+        transform: translateX(-50%);
+        border: 12px solid transparent;
+        border-top-color: #fff; /* Creates the inner white triangle */
+        z-index: 1;
+    }
+    .volume-control {
+        position: fixed;
+        top: 30px;
+        right: 8%;
+        cursor: pointer;
+        z-index: 1001;
+        padding: 10px;
+        font-size: 30px;
+        background: none;
+        border: none;
+    }
   </style>
 </head>
 <body>
   <div class="sidebar">
     <ul>
-      <li><a href="{{ url_for('profile.view_profile') }}" style="text-decoration: none; color: white;">Profile</a></li>
-      <li><a href="{{ url_for('main.index') }}" style="text-decoration: none; color: white;">About Us</a></li>
+      <li><a href="{{ url_for('profile.view_profile') }}">Profile</a></li>
+      <li><a href="{{ url_for('main.about') }}">About Us</a></li>
+      <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
     </ul>
   </div>
   <div class="main-content">
@@ -260,8 +300,9 @@
     <div class="bar2"></div>
     <div class="bar3"></div>
   </div>
+  <button id="volume-btn" class="volume-control">🔊</button>
 
- <audio autoplay loop> 
+ <audio id="bg-music" autoplay loop> 
    <source src="/static/bg music.mp3" type="audio/mp3">
  </audio>
 
@@ -280,9 +321,8 @@
       {% endif %}
     {% endwith %}
 
-    <h1 id="pet-message">{{ pet.message }}</h1>
-
     <img src="/static/{{ pet.current_mood }}.png" id="pet-image" class="pet-image" alt="Your Pet">
+    <h1 id="pet-message">{{ pet.message }}</h1>
 
     <div class="mood-buttons">
       <form action="{{ url_for('pets.set_mood', mood='playing') }}" method="POST" style="display: inline;"><button type="submit">😝 Playing</button></form>
@@ -300,10 +340,26 @@
 </div>
 
 <div>
-    <img src="/static/streakboardfinal.png" width="200" height="200" class="streakboardfinal">
+    <img src="/static/streakboardfinal.png" width="200" height="200" class="streakboardfinal" alt="Streak Board">
+    <div class="streak-text">{{ pet.streak_days | default(0) }}</div>
 </div>
 
   <script>
+    // --- Volume Control ---
+    const audio = document.getElementById('bg-music');
+    const volumeBtn = document.getElementById('volume-btn');
+    audio.volume = 0.3; // Set initial volume to 30%
+
+    volumeBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        volumeBtn.textContent = '🔊';
+      } else {
+        audio.pause();
+        volumeBtn.textContent = '🔇';
+      }
+    });
+
     // Hamburger menu functionality
     const hamburger = document.querySelector('.hamburger-menu');
     const sidebar = document.querySelector('body > .sidebar');

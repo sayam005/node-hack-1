@@ -10,7 +10,8 @@ def set_mood(mood):
     if pet and mood in pet.MOOD_HIERARCHY:
         pet.current_mood = mood
         db.session.commit()
-        flash(f"Blobby is now feeling {mood}!")
+        # This message will be displayed in the comic book bubble
+        flash(f"You are now feeling {mood}!")
     else:
         flash("Invalid mood selected.")
     return redirect(url_for('main.dashboard'))
@@ -32,3 +33,21 @@ def recover_mood():
         'message': pet.message,
         'image_path': url_for('static', filename=f'{new_mood}.png')
     })
+
+@pets_bp.route('/recover', methods=['POST'])
+@login_required
+def recover():
+    pet = current_user.pet
+    if not pet:
+        return jsonify({'success': False, 'message': 'No pet found.'})
+
+    # Set Blobby's mood to match user's mood
+    pet.current_mood = mood
+    
+    # The line "pet.message = ..." was removed as it caused the AttributeError.
+    # The message is generated automatically by the @property in the Pet model.
+    
+    # Save changes
+    db.session.commit()
+    flash(f"You are now feeling {mood}!")
+    return redirect(url_for('main.dashboard'))
